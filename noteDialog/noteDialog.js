@@ -74,6 +74,9 @@ async function start() {
 
   requireElement('pageName').textContent = draft.pageTitle || describePageKey(toPageKey(draft.pageUrl));
   requireElement('quote').textContent = draft.quote;
+  // The keyboard shortcut can arrive with no selection: the page allows no script, or nothing was selected.
+  requireElement('quote').hidden = draft.quote === '';
+  requireElement('quoteMissing').hidden = draft.quote !== '';
   noteText.focus();
 
   // A selection of only spaces gives an empty quote, and then the note needs a text.

@@ -23,6 +23,9 @@
 
 export const NOTE_DRAFT_KEY_PREFIX = 'noteDraft:';
 
+/** The command name in `manifest.json`. Chrome stores the user's own key under this name, so never rename it. */
+export const ADD_NOTE_COMMAND = 'add-note-to-selection';
+
 /**
  * @param {{ selectionText?: string, pageUrl?: string, frameUrl?: string }} menuInfo  From `contextMenus.onClicked`.
  * @param {{ title?: string, url?: string } | undefined} tab
@@ -33,6 +36,19 @@ export function buildNoteDraft(menuInfo, tab) {
   const pageUrl = menuInfo.pageUrl || menuInfo.frameUrl || tab?.url || '';
   if (pageUrl === '') return null;
   return { quote: (menuInfo.selectionText ?? '').trim(), pageUrl, pageTitle: tab?.title ?? '' };
+}
+
+/**
+ * The keyboard shortcut gets no selection from Chrome, so the service worker reads
+ * `getSelection()` in every frame of the tab. Only one frame can hold the selection.
+ * @param {Array<{ result?: unknown }>} frameResults  From `chrome.scripting.executeScript`.
+ * @returns {string} The trimmed selection, or empty when no frame has one.
+ */
+export function pickFrameSelection(frameResults) {
+  for (const { result } of frameResults) {
+    if (typeof result === 'string' && result.trim() !== '') return result.trim();
+  }
+  return '';
 }
 
 /**

@@ -4,7 +4,7 @@ This directory holds the Architecture Decision Records for Margin Notes.
 
 ## What is an ADR?
 
-An ADR records one architectural decision or cross-cutting standard, with its context, the decision, and its consequences. It answers "how do we always do X here": why nothing is injected into the page, what the extension stores in which storage area, and how an address becomes a folder.
+An ADR records one architectural decision or cross-cutting standard, with its context, the decision, and its consequences. It answers "how do we always do X here": why nothing is drawn in the page, what the extension stores in which storage area, and how an address becomes a folder.
 
 An ADR is **not** a feature explanation and not a setup guide. How the project works and how to run it belongs in `README.md`. See the "Documentation Organization" section of the root `AGENTS.md` for the full map of what goes where.
 
