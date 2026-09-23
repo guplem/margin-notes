@@ -26,6 +26,14 @@ Chrome keeps the extension until you remove it. After you pull a new version, pr
 2. Right-click the selection and choose **Add note to "…"**.
 3. A small window opens with the selected text. Pick a label, write your note, and press **Save note** (or `Ctrl+Enter`). `Esc` closes the window without saving.
 
+### Keyboard shortcut
+
+Select some text and press **`Alt+Shift+N`** instead of right-clicking. The shortcut keeps the line breaks of the selection.
+
+- **Change the key:** press **Change** next to the shortcut at the bottom left of the notes page, or open `chrome://extensions/shortcuts`. Chrome owns shortcut keys, so they are changed there.
+- **Nothing selected:** the window opens without a quote, for a note about the whole page.
+- **In a PDF:** the shortcut cannot read the selection. Use the right-click menu.
+
 ### Read, edit, and share your notes
 
 Press the Margin Notes button in the toolbar. The notes page opens on the folder of the page that you are reading.
@@ -81,6 +89,12 @@ Chrome was restarted while the window was open, so the selected text is gone. Cl
 **The selected text lost its line breaks.**
 Chrome gives the extension the selection as one line in some cases. Edit the note if the line breaks matter.
 
+**The shortcut does nothing, or the notes page says "Shortcut: not set".**
+Another extension already uses `Alt+Shift+N`, so Chrome did not give it to Margin Notes. Press **Change** on the notes page and pick another key.
+
+**The shortcut opens a note without the text that I selected.**
+Chrome does not let extensions read that page: a PDF, a Chrome settings page, or a local file without file access. Use the right-click menu there, or turn on **Allow access to file URLs** for local files.
+
 **Copy as Markdown did nothing.**
 Click once anywhere on the notes page and press the button again. Chrome only lets a page write to the clipboard while it has focus.
 
@@ -88,7 +102,7 @@ Click once anywhere on the notes page and press the button again. Chrome only le
 
 - Your notes stay on this computer, in Chrome's storage for the extension. There is no server, no account, and no analytics.
 - Your labels are stored in your Chrome profile, so Chrome syncs them to your other computers when sync is on.
-- The extension never reads or changes the pages you visit. It sees only the text that you select and right-click, the page address, and the page title.
+- The extension never changes the pages you visit. It sees only the text that you select, the page address, and the page title, and only when you right-click **Add note** or press the shortcut.
 - A copy or a download goes only where you put it.
 
 The full policy for the Chrome Web Store is in [`PRIVACY.md`](PRIVACY.md).
@@ -107,7 +121,8 @@ The full policy for the Chrome Web Store is in [`PRIVACY.md`](PRIVACY.md).
 6. On the **Privacy** tab, give one reason per permission:
    - `contextMenus`: adds the "Add note" item to the right-click menu on selected text.
    - `storage`: saves the notes on this computer and the labels in the Chrome profile.
-   - `activeTab`: reads the address of the current tab when the user presses the toolbar button, so the notes page opens on that page's folder.
+   - `activeTab`: reads the address of the current tab when the user presses the toolbar button, so the notes page opens on that page's folder. It also lets the keyboard shortcut read the selected text in that tab.
+   - `scripting`: when the user presses the keyboard shortcut, reads the selected text of the current tab once. It never changes the page.
 7. Declare that the extension does not sell or transfer user data, and link the privacy policy: the web address of `PRIVACY.md` in this repository.
 8. Submit for review.
 

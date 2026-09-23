@@ -7,6 +7,7 @@
  */
 
 import { describePageKey } from '../src/pageAddress/pageKey.js';
+import { ADD_NOTE_COMMAND } from '../src/notes/noteDraft.js';
 import { DEFAULT_LABELS, loadLabels, saveLabels } from '../src/notes/noteLabels.js';
 import { buildExportFileName, formatPageAsMarkdown, formatPageAsText, formatPagesAsMarkdown } from '../src/notes/notesExport.js';
 import { createPageNotesStore, PAGE_NOTES_KEY_PREFIX } from '../src/notes/pageNotesStore.js';
@@ -183,7 +184,9 @@ function renderEmptyState() {
       createElement('p', { text: 'To add a note:' }),
       createElement('ol', {}, [
         createElement('li', { text: 'Select some text on any page.' }),
-        createElement('li', { text: 'Right-click the selection and choose "Add note to …".' }),
+        createElement('li', {
+          text: 'Right-click the selection and choose "Add note to …", or press the shortcut shown at the bottom left.',
+        }),
         createElement('li', { text: 'Write your note, pick a label, and press Save note.' }),
       ]),
       createElement('p', {
@@ -426,6 +429,24 @@ requireElement('showLabels').addEventListener('click', () => {
   stopEditing();
 });
 
+/**
+ * Chrome owns the key. An extension can read it but not change it, so "Change" opens Chrome's own shortcut page.
+ * @returns {Promise<void>}
+ */
+async function showShortcut() {
+  const commands = await chrome.commands.getAll();
+  const shortcut = commands.find((command) => command.name === ADD_NOTE_COMMAND)?.shortcut ?? '';
+  requireElement('shortcutKeys').textContent = shortcut || 'not set';
+}
+
+requireElement('changeShortcut').addEventListener('click', () => {
+  // A plain link to a chrome:// page is blocked, but an extension page may open one as a tab.
+  void chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+});
+
+// The user comes back from Chrome's shortcut page to this tab, so read the key again then.
+window.addEventListener('focus', () => void showShortcut().catch(() => undefined));
+
 requireElement('downloadAll').addEventListener('click', () => {
   if (state.pages.length === 0) {
     showToast('There are no notes to download.');
@@ -447,6 +468,7 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
 
 void (async () => {
   state.labels = await loadLabels(chrome.storage.sync);
+  void showShortcut().catch((error) => console.error('[Margin Notes] could not read the shortcut', error));
   await reloadPages();
   // Without a folder asked for, open the most recent one instead of an empty screen.
   if (state.selectedPageKey === null && state.pages[0] !== undefined) {
