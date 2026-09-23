@@ -1,8 +1,8 @@
 # Margin Notes
 
-A Manifest V3 Chrome extension for proofreading and feedback. The user selects text on any page or local file, right-clicks, and adds a note with a label. The toolbar button opens a notes page with one folder per page, where the user copies or downloads the notes as Markdown or plain text. There is no build step and no server, so the repository folder is the folder Chrome loads. Install, use, publishing, and troubleshooting details: `README.md`.
+A Manifest V3 Chrome extension for proofreading and feedback. The user selects text on any page or local file, right-clicks or presses the keyboard shortcut, and adds a note with a label. The toolbar button opens a notes page with one folder per page, where the user copies or downloads the notes as Markdown or plain text. There is no build step and no server, so the repository folder is the folder Chrome loads. Install, use, publishing, and troubleshooting details: `README.md`.
 
-The extension **never touches the page**. It injects no script and no style, and it holds no host permission. It learns about a page only from what Chrome hands to the right-click menu and the toolbar click. Keep it that way: it is why the extension works on local files and PDFs, and why the Web Store review has almost nothing to question.
+The extension **never draws in the page** and holds no host permission. It learns about a page from what Chrome hands to the right-click menu, the keyboard shortcut, and the toolbar click. The one exception is the shortcut: it runs one function in the tab to read the selection, and falls back to a note about the whole page where Chrome allows no script. Keep it that way: it is why the extension works on local files and PDFs, and why each permission is narrow.
 
 Delegate to these agents at the right moment (each agent's own description says what it does). They fall into two groups, by when they run.
 
@@ -64,11 +64,11 @@ Whenever you need to confirm the code still passes, delegate to the **validate**
 
 The extension runs in three places, and none of them is the page the user reads.
 
-| Place          | Files                             | Job                                                                  |
-| -------------- | --------------------------------- | -------------------------------------------------------------------- |
-| Service worker | `src/background/serviceWorker.js` | Owns the right-click menu and the toolbar button. Opens the windows. |
-| Note dialog    | `noteDialog/noteDialog.*`         | A popup window. Reads the draft, saves the note, closes itself.      |
-| Notes page     | `notesPage/notesPage.*`           | A tab. Lists the folders, edits and deletes notes, exports, labels.  |
+| Place          | Files                             | Job                                                                                 |
+| -------------- | --------------------------------- | ----------------------------------------------------------------------------------- |
+| Service worker | `src/background/serviceWorker.js` | Owns the right-click menu, the shortcut, and the toolbar button. Opens the windows. |
+| Note dialog    | `noteDialog/noteDialog.*`         | A popup window. Reads the draft, saves the note, closes itself.                     |
+| Notes page     | `notesPage/notesPage.*`           | A tab. Lists the folders, edits and deletes notes, exports, labels.                 |
 
 ### How one note happens, end to end
 
@@ -78,26 +78,30 @@ The extension runs in three places, and none of them is the page the user reads.
 4. The dialog reads the draft, and on save calls `addNote` (`pageNotesStore.js`). `toPageKey` (`pageKey.js`) picks the folder.
 5. The dialog removes the draft and closes. An open notes page redraws through `chrome.storage.onChanged`.
 
+The keyboard shortcut (`chrome.commands.onCommand`) takes the same path from step 2. It has no selection from Chrome, so `readSelection` first runs `getSelection()` in every frame of the tab, and `pickFrameSelection` (`noteDraft.js`) picks the frame that has one. The notes page reads the current key with `chrome.commands.getAll` and opens `chrome://extensions/shortcuts` to change it, because an extension cannot set its own keys.
+
 A toolbar click opens `notesPage.html?page=<pageKey>` for the current tab. The click grants `activeTab`, which is the only reason the service worker can read the tab address. An open notes page is reused, found with `chrome.runtime.getContexts`.
 
 ### File map
 
-| File                              | Holds                                                                                   |
-| --------------------------------- | --------------------------------------------------------------------------------------- |
-| `src/background/serviceWorker.js` | Wiring only. Menu, toolbar, window placement.                                           |
-| `src/pageAddress/pageKey.js`      | Address to folder key, and the readable form of a key. **All address knowledge here.**  |
-| `src/notes/noteDraft.js`          | The draft from menu to dialog, and the dialog position. Pure logic.                     |
-| `src/notes/noteLabels.js`         | Default labels, `normalizeLabels`, load and save in `chrome.storage.sync`.              |
-| `src/notes/pageNotesStore.js`     | One record per page in `chrome.storage.local`. **The only file that touches its keys.** |
-| `src/notes/notesExport.js`        | Markdown, plain text, and file names. Pure logic.                                       |
-| `src/ui/domElements.js`           | `createElement` and the label chip, shared by both pages.                               |
-| `src/ui/extensionTheme.css`       | Colors, type, and controls shared by both pages, light and dark.                        |
-| `noteDialog/noteDialog.*`         | The note dialog.                                                                        |
-| `notesPage/notesPage.*`           | The notes page.                                                                         |
+| File                              | Holds                                                                                             |
+| --------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `src/background/serviceWorker.js` | Wiring only. Menu, toolbar, window placement.                                                     |
+| `src/pageAddress/pageKey.js`      | Address to folder key, and the readable form of a key. **All address knowledge here.**            |
+| `src/notes/noteDraft.js`          | The draft from menu or shortcut to dialog, the command name, and the dialog position. Pure logic. |
+| `src/notes/noteLabels.js`         | Default labels, `normalizeLabels`, load and save in `chrome.storage.sync`.                        |
+| `src/notes/pageNotesStore.js`     | One record per page in `chrome.storage.local`. **The only file that touches its keys.**           |
+| `src/notes/notesExport.js`        | Markdown, plain text, and file names. Pure logic.                                                 |
+| `src/ui/domElements.js`           | `createElement` and the label chip, shared by both pages.                                         |
+| `src/ui/extensionTheme.css`       | Colors, type, and controls shared by both pages, light and dark.                                  |
+| `noteDialog/noteDialog.*`         | The note dialog.                                                                                  |
+| `notesPage/notesPage.*`           | The notes page.                                                                                   |
 
 ## Rules
 
-- **Inject nothing into the page, and ask for no host permission.** The permissions are `contextMenus`, `storage`, and `activeTab`. A feature that seems to need a content script or `scripting` changes `adr/0002-dialog-in-a-popup-window.md` first. It also costs the local-file support, because Chrome runs no extension script on `file://` until the user turns on "Allow access to file URLs".
+- **Draw nothing in the page, and ask for no host permission.** The permissions are `contextMenus`, `storage`, `activeTab`, and `scripting`. `scripting` serves only the shortcut's one-time selection read. A feature that needs more page access changes `adr/0002-dialog-in-a-popup-window.md` first. It also costs the local-file support, because Chrome runs no extension script on `file://` until the user turns on "Allow access to file URLs".
+- **A failed selection read must still open the dialog.** Where Chrome allows no script, `readSelection` returns an empty text, and the dialog opens as a note about the whole page. Never let the shortcut fail with no window.
+- **Never rename the command `add-note-to-selection`.** Chrome stores the user's own key under that name, so a new name drops the user back to the suggested key. `ADD_NOTE_COMMAND` in `noteDraft.js` is the one copy in the code.
 - **Put user text into the DOM with `textContent` only.** A note and a quote are text from a page the user does not control. Use `createElement` from `domElements.js`; never `innerHTML`.
 - **Pass the selected text through `chrome.storage.session`, never through a window address.** The address shows in the window history and can grow past what Chrome accepts.
 - **All address knowledge lives in `pageKey.js`.** A folder is the origin plus the path, with no query, no hash, and no trailing slash. See `adr/0005-one-folder-per-page-address.md`.
@@ -115,6 +119,9 @@ A toolbar click opens `notesPage.html?page=<pageKey>` for the current tab. The c
 - **`chrome.windows.create` refuses bounds that are mostly off screen** ("Bounds must be at least 50% within visible screen space"). `openNoteDialog` retries with no position, so the dialog still opens.
 - **`chrome.tabs.update` with a `url` reloads the tab, even when the address is the same.** `openNotesPage` only focuses the notes page when the address would not change, so an open edit survives.
 - **A redraw of the notes page destroys its open inputs.** A storage change waits while a note is in edit mode, and in the labels view it redraws only the folder list. Leave edit mode through `stopEditing`, which catches up on the waited changes.
+- **Chrome skips a suggested shortcut that another extension already holds, with no error.** The notes page then shows "not set". An extension cannot pick a key for itself, so point the user to `chrome://extensions/shortcuts`.
+- **A plain link to a `chrome://` page does nothing on an extension page.** Open it with `chrome.tabs.create`.
+- **`executeScript` with `allFrames` can fail as a whole** when one frame refuses the script. `readSelection` then retries the top frame alone.
 - **`chrome.storage.session` empties when Chrome restarts.** A dialog window that survives a restart finds no draft, and shows a message instead of a blank form.
 - **`navigator.clipboard.writeText` refuses while the page has no focus.** `copyText` falls back to a hidden textarea and `execCommand('copy')`.
 - **Windows PowerShell 5.1 `Compress-Archive` writes `\` into zip entry names.** The Web Store cannot read such a zip, so `packageExtension.ps1` writes each entry by hand with `/`.
@@ -127,7 +134,7 @@ Develop new behavior **test-first, red-green**: write a failing test that pins t
 
 What is testable here, and what is not:
 
-- **Testable, and always test-first:** the folder key and its readable form (`pageKey.js`), the draft and the dialog position (`noteDraft.js`), label validation (`noteLabels.js`), the whole note store (`pageNotesStore.js`), and every export format and file name (`notesExport.js`).
+- **Testable, and always test-first:** the folder key and its readable form (`pageKey.js`), the draft, the frame selection, and the dialog position (`noteDraft.js`), label validation (`noteLabels.js`), the whole note store (`pageNotesStore.js`), and every export format and file name (`notesExport.js`).
 - **Exempt, because a unit test would only restate the code:** `serviceWorker.js`, `noteDialog.js`, `notesPage.js`, and `domElements.js`. Keep these thin: an adapter reads an event, calls a pure function, and draws the result. It holds no decision.
 - **The safety net for the exempt parts** is the type check (`npm run typecheck` reads every file) plus one manual run in Chrome. `adr/0006-testing-strategy.md` records this split and the manual run.
 
@@ -171,14 +178,14 @@ ADRs live in `adr/`. Each records one architectural decision or cross-cutting st
 
 **After implementing**, delegate to the **adr-checker** agent in maintain mode only if you introduced a new architectural pattern or changed one an ADR already records.
 
-| ADR                                         | Topic                                                                                    |
-| ------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `0001-agent-docs-structure.md`              | `AGENTS.md` map + Claude-Code-only skills, subagents, and settings                       |
-| `0002-dialog-in-a-popup-window.md`          | The note dialog is an extension popup window; nothing is injected into the page          |
-| `0003-plain-javascript-with-jsdoc-types.md` | JSDoc types checked by `tsc`, so the repo folder is the extension folder                 |
-| `0004-extension-storage-layout.md`          | Notes in `local` one key per page, labels in `sync`, drafts in `session`                 |
-| `0005-one-folder-per-page-address.md`       | A folder is origin plus path; the query, the hash, and a trailing slash are dropped      |
-| `0006-testing-strategy.md`                  | Pure logic is test-first; thin adapters are exempt and covered by types and a manual run |
+| ADR                                         | Topic                                                                                           |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `0001-agent-docs-structure.md`              | `AGENTS.md` map + Claude-Code-only skills, subagents, and settings                              |
+| `0002-dialog-in-a-popup-window.md`          | The note dialog is a popup window; the page gets at most the shortcut's one-time selection read |
+| `0003-plain-javascript-with-jsdoc-types.md` | JSDoc types checked by `tsc`, so the repo folder is the extension folder                        |
+| `0004-extension-storage-layout.md`          | Notes in `local` one key per page, labels in `sync`, drafts in `session`                        |
+| `0005-one-folder-per-page-address.md`       | A folder is origin plus path; the query, the hash, and a trailing slash are dropped             |
+| `0006-testing-strategy.md`                  | Pure logic is test-first; thin adapters are exempt and covered by types and a manual run        |
 
 ## GitHub issues, PRs, and other artifacts
 

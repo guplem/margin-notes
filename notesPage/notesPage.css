@@ -85,6 +85,36 @@
   border-top: 1px solid var(--page-border);
 }
 
+.shortcut-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--page-border);
+  border-radius: 4px;
+  font: inherit;
+  font-family: Consolas, 'Roboto Mono', monospace;
+  color: var(--page-text);
+  background: var(--page-background);
+}
+
+.link-button {
+  padding: 0;
+  border: none;
+  color: var(--page-accent);
+  text-decoration: underline;
+}
+
+.link-button:hover {
+  background: transparent;
+}
+
 .content {
   width: 100%;
   max-width: 820px;

@@ -1,14 +1,23 @@
 /**
- * Background service worker. It owns the two ways into the extension:
+ * Background service worker. It owns the three ways into the extension:
  *
  * - The right-click menu item on selected text opens the note dialog in a small
  *   popup window. A popup window works on every page, local files and PDFs
  *   included, because nothing is injected into the page.
+ * - The keyboard shortcut opens the same dialog. Chrome gives a shortcut no
+ *   selection, so it reads `getSelection()` once in the tab, and falls back to a
+ *   note about the whole page where Chrome allows no script (a PDF, for one).
  * - The toolbar button opens the notes page, on the folder of the current tab.
  */
 
 import { toPageKey } from '../pageAddress/pageKey.js';
-import { buildNoteDraft, centerDialogOver, NOTE_DRAFT_KEY_PREFIX } from '../notes/noteDraft.js';
+import {
+  ADD_NOTE_COMMAND,
+  buildNoteDraft,
+  centerDialogOver,
+  NOTE_DRAFT_KEY_PREFIX,
+  pickFrameSelection,
+} from '../notes/noteDraft.js';
 
 const ADD_NOTE_MENU_ID = 'add-note-to-selection';
 const NOTE_DIALOG_SIZE = { width: 460, height: 600 };
@@ -26,12 +35,51 @@ chrome.contextMenus.onClicked.addListener((menuInfo, tab) => {
   void openNoteDialog(menuInfo, tab).catch((error) => console.error('[Margin Notes] could not open the note dialog', error));
 });
 
+chrome.commands.onCommand.addListener((command, tab) => {
+  if (command !== ADD_NOTE_COMMAND) return;
+  void openNoteDialogFromShortcut(tab).catch((error) => console.error('[Margin Notes] could not open the note dialog', error));
+});
+
 chrome.action.onClicked.addListener((tab) => {
   void openNotesPage(tab.url).catch((error) => console.error('[Margin Notes] could not open the notes page', error));
 });
 
 /**
- * @param {chrome.contextMenus.OnClickData} menuInfo
+ * @param {chrome.tabs.Tab | undefined} tab  Chrome passes the active tab; the query covers the case where it does not.
+ * @returns {Promise<void>}
+ */
+async function openNoteDialogFromShortcut(tab) {
+  const activeTab = tab ?? (await chrome.tabs.query({ active: true, lastFocusedWindow: true }))[0];
+  if (activeTab?.id === undefined) return;
+  const selectionText = await readSelection(activeTab.id);
+  await openNoteDialog({ selectionText, pageUrl: activeTab.url ?? '' }, activeTab);
+}
+
+/**
+ * Runs once in the tab, which the shortcut grants through `activeTab`. It reads the
+ * selection and leaves nothing behind in the page.
+ * @param {number} tabId
+ * @returns {Promise<string>} Empty when Chrome allows no script there, or when nothing is selected.
+ */
+async function readSelection(tabId) {
+  /** @returns {string} */
+  const readPageSelection = () => getSelection()?.toString() ?? '';
+  try {
+    return pickFrameSelection(
+      await chrome.scripting.executeScript({ target: { tabId, allFrames: true }, func: readPageSelection }),
+    );
+  } catch {
+    // A frame from another site can refuse the script, so ask the top frame alone before giving up.
+    try {
+      return pickFrameSelection(await chrome.scripting.executeScript({ target: { tabId }, func: readPageSelection }));
+    } catch {
+      return '';
+    }
+  }
+}
+
+/**
+ * @param {{ selectionText?: string, pageUrl?: string, frameUrl?: string }} menuInfo  From the menu, or built by the shortcut.
  * @param {chrome.tabs.Tab | undefined} tab
  * @returns {Promise<void>}
  */

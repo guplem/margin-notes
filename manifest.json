@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "description": "Select text on any page or local file, right-click, and add a labelled note. Export each page's notes as Markdown or text.",
   "minimum_chrome_version": "116",
-  "permissions": ["contextMenus", "storage", "activeTab"],
+  "permissions": ["contextMenus", "storage", "activeTab", "scripting"],
   "action": {
     "default_title": "Margin Notes: open your notes",
     "default_icon": {
@@ -19,6 +19,12 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
+  },
+  "commands": {
+    "add-note-to-selection": {
+      "suggested_key": { "default": "Alt+Shift+N" },
+      "description": "Add a note to the selected text"
+    }
   },
   "background": {
     "service_worker": "src/background/serviceWorker.js",

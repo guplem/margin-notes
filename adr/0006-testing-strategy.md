@@ -18,9 +18,10 @@ The rest of the extension is decisions. Which folder an address belongs to, what
 **The safety net for the exempt files** is two things. `npm run typecheck` reads every file under `strict`, so a wrong property name or a missed `null` fails the check. One manual run in Chrome covers the rest:
 
 1. Load the folder unpacked, select text on a web page, right-click, and save a note with a label.
-2. Do the same on a local file.
-3. Press the toolbar button, and confirm that the notes page opens on that page's folder.
-4. Edit a note, copy the folder as Markdown, download the `.md` and `.txt` files, and delete the folder.
+2. Select text on a web page and press the shortcut. Confirm that the dialog shows the quote with its line breaks.
+3. Do the right-click step on a local file.
+4. Press the toolbar button, and confirm that the notes page opens on that page's folder.
+5. Edit a note, copy the folder as Markdown, download the `.md` and `.txt` files, and delete the folder.
 
 **Rejected alternative:** a browser test runner (Puppeteer or Playwright) that loads the unpacked extension. Branded Chrome no longer accepts the command-line flag that loads an unpacked extension, so it needs a separate test build of Chrome, and right-click menus are hard to drive from such tools. The value it adds is the value of the manual run.
 

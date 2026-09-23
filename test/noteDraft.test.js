@@ -1,7 +1,7 @@
 import { strict as assert } from 'node:assert';
 import { test } from 'node:test';
 
-import { buildNoteDraft, centerDialogOver, normalizeNoteDraft } from '../src/notes/noteDraft.js';
+import { buildNoteDraft, centerDialogOver, normalizeNoteDraft, pickFrameSelection } from '../src/notes/noteDraft.js';
 
 test('takes the selected text, the page address, and the tab title', () => {
   const draft = buildNoteDraft(
@@ -40,4 +40,19 @@ test('centers the dialog over the browser window', () => {
 
 test('places the dialog near the top left when the window size is unknown', () => {
   assert.deepEqual(centerDialogOver(undefined, { width: 400, height: 500 }), { left: 100, top: 100, width: 400, height: 500 });
+});
+
+test('takes the selection of the first frame that has one', () => {
+  const selection = pickFrameSelection([{ result: '' }, { result: '  text in a frame  ' }, { result: 'later frame' }]);
+
+  assert.equal(selection, 'text in a frame');
+});
+
+test('keeps the line breaks of a selection read from the page', () => {
+  assert.equal(pickFrameSelection([{ result: 'first line\nsecond line' }]), 'first line\nsecond line');
+});
+
+test('gives an empty selection when no frame answered with text', () => {
+  assert.equal(pickFrameSelection([]), '');
+  assert.equal(pickFrameSelection([{ result: 42 }, { result: null }, {}]), '');
 });
