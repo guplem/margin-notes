@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Margin Notes</title>
+    <link rel="icon" href="../icons/icon32.png" />
+    <link rel="stylesheet" href="../src/ui/extensionTheme.css" />
+    <link rel="stylesheet" href="notesPage.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <header class="sidebar-header">
+          <img src="../icons/icon48.png" alt="" width="28" height="28" />
+          <h1>Margin Notes</h1>
+        </header>
+        <nav id="pageList" class="page-list" aria-label="Pages with notes"></nav>
+        <footer class="sidebar-footer">
+          <button type="button" id="downloadAll">Download all notes (.md)</button>
+          <button type="button" id="showLabels">Edit labels</button>
+        </footer>
+      </aside>
+
+      <main id="content" class="content"></main>
+    </div>
+
+    <p id="toast" class="toast" role="status"></p>
+
+    <script type="module" src="notesPage.js"></script>
+  </body>
+</html>

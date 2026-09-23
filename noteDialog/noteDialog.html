@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Add a note · Margin Notes</title>
+    <link rel="stylesheet" href="../src/ui/extensionTheme.css" />
+    <link rel="stylesheet" href="noteDialog.css" />
+  </head>
+  <body>
+    <form id="noteForm" class="dialog">
+      <header>
+        <h1>Add a note</h1>
+        <p id="pageName" class="hint page-name"></p>
+      </header>
+
+      <blockquote id="quote" class="quote"></blockquote>
+
+      <fieldset>
+        <legend>Label</legend>
+        <div id="labelChoices" class="label-choices"></div>
+      </fieldset>
+
+      <label class="note-field">
+        <span>Note</span>
+        <textarea id="noteText" rows="7" placeholder="What should change, or what do you want to ask?"></textarea>
+      </label>
+
+      <p id="status" class="hint" role="status"></p>
+
+      <footer>
+        <span class="hint shortcut">Ctrl+Enter saves · Esc closes</span>
+        <button type="button" id="cancel">Cancel</button>
+        <button type="submit" id="save" class="primary">Save note</button>
+      </footer>
+    </form>
+
+    <script type="module" src="noteDialog.js"></script>
+  </body>
+</html>
