@@ -8,7 +8,11 @@ It works on web pages, on local files that you open in Chrome (HTML, text, PDF),
 
 ## Install
 
-Until the extension is on the Chrome Web Store, load it from this folder. There is no build step, so the repository folder **is** the extension folder.
+Install it from the Chrome Web Store: **[Margin Notes](https://chromewebstore.google.com/detail/inlfhheelfembhnmegepaofeodbfamai)**.
+
+### Install from source
+
+To run it from source, load it from this folder. There is no build step, so the repository folder **is** the extension folder.
 
 1. Download or clone this repository.
 2. Open `chrome://extensions` in Chrome.
@@ -117,14 +121,14 @@ The full policy for the Chrome Web Store is in [`PRIVACY.md`](PRIVACY.md).
    The zip lands in `dist/margin-notes-<version>.zip`.
 3. Open the [Chrome Web Store Developer Dashboard](https://chrome.google.com/webstore/devconsole). A new developer account pays a one-time registration fee.
 4. Press **New item** and upload the zip. For an update, open the item and upload the new zip in **Package**.
-5. Fill in the store listing: a description, at least one 1280×800 screenshot, and the 128×128 icon from `icons/icon128.png`.
-6. On the **Privacy** tab, give one reason per permission:
-   - `contextMenus`: adds the "Add note" item to the right-click menu on selected text.
-   - `storage`: saves the notes on this computer and the labels in the Chrome profile.
-   - `activeTab`: reads the address of the current tab when the user presses the toolbar button, so the notes page opens on that page's folder. It also lets the keyboard shortcut read the selected text in that tab.
-   - `scripting`: when the user presses the keyboard shortcut, reads the selected text of the current tab once. It never changes the page.
-7. Declare that the extension does not sell or transfer user data, and link the privacy policy: the web address of `PRIVACY.md` in this repository.
-8. Submit for review.
+5. Fill in the **Store listing**, **Privacy**, and **Distribution** tabs. [`store/listing.md`](store/listing.md) holds every text to paste, field by field, including one reason per permission and the privacy policy link. The images to upload are in `store/images/`.
+6. Submit for review.
+
+The store images are rendered from HTML pages in `store/graphics/`. After you change one, render them again (Windows, needs Google Chrome):
+
+```bash
+powershell -ExecutionPolicy Bypass -File scripts/renderStoreImages.ps1
+```
 
 ## Development
 
