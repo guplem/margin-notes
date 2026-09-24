@@ -28,7 +28,11 @@
       "Bash(npx prettier *)",
       "Bash(npx tsc *)"
     ],
-    "ask": ["Bash(powershell *makeIcons.ps1*)", "Bash(powershell *packageExtension.ps1*)"],
+    "ask": [
+      "Bash(powershell *makeIcons.ps1*)",
+      "Bash(powershell *packageExtension.ps1*)",
+      "Bash(powershell *renderStoreImages.ps1*)"
+    ],
     "deny": []
   },
   "hooks": {

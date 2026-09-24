@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="storeStyles.css" />
+    <style>
+      html,
+      body {
+        width: 440px;
+        height: 280px;
+      }
+      .wrap {
+        position: absolute;
+        inset: 0;
+        padding: 34px 34px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      .brand {
+        font-size: 30px;
+      }
+      .brand img {
+        width: 60px;
+        height: 60px;
+      }
+      h1 {
+        font-size: 30px;
+        font-weight: 800;
+        line-height: 1.15;
+        margin-top: 22px;
+        letter-spacing: -0.5px;
+      }
+      .chips {
+        display: flex;
+        gap: 8px;
+        margin-top: 18px;
+      }
+      .chip {
+        font-size: 13px;
+        padding: 3px 11px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="brand"><img src="../../icons/icon128.png" alt="" />Margin Notes</div>
+      <h1>Notes on anything <span class="accent">you read.</span></h1>
+      <div class="chips">
+        <span class="chip" style="--c: #1e88e5">Question</span><span class="chip" style="--c: #e53935">Correction</span
+        ><span class="chip" style="--c: #8e24aa">Rephrasing</span>
+      </div>
+    </div>
+  </body>
+</html>

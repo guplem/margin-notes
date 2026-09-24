@@ -45,16 +45,17 @@ Both layers cover prose only. Neither covers code identifiers or text you quote 
 
 ## Commands
 
-| Task                                   | Command                                                                 | Notes                                                                                   |
-| -------------------------------------- | ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| Install dependencies and the git hooks | `npm install`                                                           | The `prepare` script runs `lefthook install`. Run this once per clone.                  |
-| Run every check, the way CI runs it    | `npm run check`                                                         | Format check, then type check, then tests. This is the umbrella script that CI calls.   |
-| Format the whole repo                  | `npm run format`                                                        | Prettier.                                                                               |
-| Check the format only                  | `npm run format:check`                                                  | Fix a failure with `npm run format`.                                                    |
-| Type check                             | `npm run typecheck`                                                     | `tsc --noEmit` over the JSDoc types. Success prints nothing.                            |
-| Run the tests                          | `npm test`                                                              | `node --test`. It finds `test/*.test.js` on its own.                                    |
-| Build the Web Store zip                | `powershell -ExecutionPolicy Bypass -File scripts/packageExtension.ps1` | Windows only. Writes `dist/margin-notes-<version>.zip` with only the files Chrome uses. |
-| Redraw the icons                       | `powershell -ExecutionPolicy Bypass -File scripts/makeIcons.ps1`        | Windows only. Run it only when the artwork changes.                                     |
+| Task                                   | Command                                                                  | Notes                                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Install dependencies and the git hooks | `npm install`                                                            | The `prepare` script runs `lefthook install`. Run this once per clone.                  |
+| Run every check, the way CI runs it    | `npm run check`                                                          | Format check, then type check, then tests. This is the umbrella script that CI calls.   |
+| Format the whole repo                  | `npm run format`                                                         | Prettier.                                                                               |
+| Check the format only                  | `npm run format:check`                                                   | Fix a failure with `npm run format`.                                                    |
+| Type check                             | `npm run typecheck`                                                      | `tsc --noEmit` over the JSDoc types. Success prints nothing.                            |
+| Run the tests                          | `npm test`                                                               | `node --test`. It finds `test/*.test.js` on its own.                                    |
+| Build the Web Store zip                | `powershell -ExecutionPolicy Bypass -File scripts/packageExtension.ps1`  | Windows only. Writes `dist/margin-notes-<version>.zip` with only the files Chrome uses. |
+| Render the Web Store images            | `powershell -ExecutionPolicy Bypass -File scripts/renderStoreImages.ps1` | Windows only, needs Google Chrome. Renders `store/graphics/*.html` to `store/images/`.  |
+| Redraw the icons                       | `powershell -ExecutionPolicy Bypass -File scripts/makeIcons.ps1`         | Windows only. Run it only when the artwork changes.                                     |
 
 There is no build and no code generation. To try the extension, load the repository folder unpacked in Chrome (`README.md` has the steps).
 
@@ -84,18 +85,20 @@ A toolbar click opens `notesPage.html?page=<pageKey>` for the current tab. The c
 
 ### File map
 
-| File                              | Holds                                                                                             |
-| --------------------------------- | ------------------------------------------------------------------------------------------------- |
-| `src/background/serviceWorker.js` | Wiring only. Menu, toolbar, window placement.                                                     |
-| `src/pageAddress/pageKey.js`      | Address to folder key, and the readable form of a key. **All address knowledge here.**            |
-| `src/notes/noteDraft.js`          | The draft from menu or shortcut to dialog, the command name, and the dialog position. Pure logic. |
-| `src/notes/noteLabels.js`         | Default labels, `normalizeLabels`, load and save in `chrome.storage.sync`.                        |
-| `src/notes/pageNotesStore.js`     | One record per page in `chrome.storage.local`. **The only file that touches its keys.**           |
-| `src/notes/notesExport.js`        | Markdown, plain text, and file names. Pure logic.                                                 |
-| `src/ui/domElements.js`           | `createElement` and the label chip, shared by both pages.                                         |
-| `src/ui/extensionTheme.css`       | Colors, type, and controls shared by both pages, light and dark.                                  |
-| `noteDialog/noteDialog.*`         | The note dialog.                                                                                  |
-| `notesPage/notesPage.*`           | The notes page.                                                                                   |
+| File                               | Holds                                                                                             |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `src/background/serviceWorker.js`  | Wiring only. Menu, toolbar, window placement.                                                     |
+| `src/pageAddress/pageKey.js`       | Address to folder key, and the readable form of a key. **All address knowledge here.**            |
+| `src/notes/noteDraft.js`           | The draft from menu or shortcut to dialog, the command name, and the dialog position. Pure logic. |
+| `src/notes/noteLabels.js`          | Default labels, `normalizeLabels`, load and save in `chrome.storage.sync`.                        |
+| `src/notes/pageNotesStore.js`      | One record per page in `chrome.storage.local`. **The only file that touches its keys.**           |
+| `src/notes/notesExport.js`         | Markdown, plain text, and file names. Pure logic.                                                 |
+| `src/ui/domElements.js`            | `createElement` and the label chip, shared by both pages.                                         |
+| `src/ui/extensionTheme.css`        | Colors, type, and controls shared by both pages, light and dark.                                  |
+| `noteDialog/noteDialog.*`          | The note dialog.                                                                                  |
+| `notesPage/notesPage.*`            | The notes page.                                                                                   |
+| `store/listing.md`                 | Every text of the Chrome Web Store listing, field by field.                                       |
+| `store/graphics/`, `store/images/` | The store images: HTML sources, and the rendered PNG files to upload.                             |
 
 ## Rules
 
@@ -109,6 +112,7 @@ A toolbar click opens `notesPage.html?page=<pageKey>` for the current tab. The c
 - **Validate everything that comes out of storage.** `normalizeLabels`, `normalizePageRecord`, and `normalizeNoteDraft` drop unknown keys and repair wrong values. Extend the matching function when you add a field, and add a test.
 - **Use the three storage areas as `adr/0004-extension-storage-layout.md` sets them.** Notes go in `local`, one key per page; labels go in `sync`; drafts go in `session`.
 - **Keep `chrome.*` and the DOM out of `src/notes/` and `src/pageAddress/`.** Each store function receives its storage area as an argument. The two page scripts and the service worker are the only files that call `chrome.*` directly.
+- **Keep the store listing true.** `store/listing.md` and the store images state facts about the code: the permissions and their reasons, the default labels, the shortcut key, and the zip size ("28 KB"). Update them in the same change as the code, and re-render the images with `renderStoreImages.ps1`. A false claim can get the extension rejected at review.
 - **Save a download from the page, with a `Blob` link.** That is why the extension needs no `downloads` permission. Keep it that way.
 
 ## Gotchas
