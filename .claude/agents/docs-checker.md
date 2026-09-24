@@ -34,15 +34,16 @@ You verify and fix drift. You do not author new ADRs or decide new decisions: th
 
 ## Change-to-documentation mapping
 
-| Change in                                                      | Check                                                                                                                                  |
-| -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `manifest.json`                                                | `AGENTS.md` Rules (permissions), `adr/0002-dialog-in-a-popup-window.md`, the `README.md` Privacy and Publishing sections, `PRIVACY.md` |
-| `src/notes/pageNotesStore.js`, `noteLabels.js`, `noteDraft.js` | `adr/0004-extension-storage-layout.md`, the `AGENTS.md` Rules, the `README.md` Privacy section, `PRIVACY.md`                           |
-| `src/pageAddress/pageKey.js`                                   | `adr/0005-one-folder-per-page-address.md`, the `README.md` folder description, the notes page empty-state hint                         |
-| `src/notes/notesExport.js`                                     | The `README.md` export example                                                                                                         |
-| `src/background/serviceWorker.js`                              | The `AGENTS.md` Architecture section and Gotchas                                                                                       |
-| Any new or moved file                                          | The `AGENTS.md` file map, `jsconfig.json`, `scripts/packageExtension.ps1`                                                              |
-| `package.json` scripts or `scripts/`                           | The `AGENTS.md` Commands table, `.claude/agents/validate.md`, the `README.md` Development section                                      |
+| Change in                                                                           | Check                                                                                                                                                                                                                            |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `manifest.json`                                                                     | `AGENTS.md` Rules (permissions), `adr/0002-dialog-in-a-popup-window.md`, the `README.md` Privacy section, `PRIVACY.md`, the permission reasons in `store/listing.md`, and the permission count in `store/graphics/02-light.html` |
+| `src/notes/pageNotesStore.js`, `noteLabels.js`, `noteDraft.js`                      | `adr/0004-extension-storage-layout.md`, the `AGENTS.md` Rules, the `README.md` Privacy section, `PRIVACY.md`                                                                                                                     |
+| `src/pageAddress/pageKey.js`                                                        | `adr/0005-one-folder-per-page-address.md`, the `README.md` folder description, the notes page empty-state hint                                                                                                                   |
+| `src/notes/notesExport.js`                                                          | The `README.md` export example                                                                                                                                                                                                   |
+| `src/background/serviceWorker.js`                                                   | The `AGENTS.md` Architecture section and Gotchas                                                                                                                                                                                 |
+| Any new or moved file                                                               | The `AGENTS.md` file map, `jsconfig.json`, `scripts/packageExtension.ps1`                                                                                                                                                        |
+| Any user-visible feature, a default label, the shortcut key, or the size of the zip | The description in `store/listing.md` and the claims in `store/graphics/*.html`; then re-render `store/images/`                                                                                                                  |
+| `package.json` scripts or `scripts/`                                                | The `AGENTS.md` Commands table, `.claude/agents/validate.md`, the `README.md` Development section                                                                                                                                |
 
 ## Output format
 
