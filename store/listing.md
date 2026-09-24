@@ -44,7 +44,7 @@ Margin Notes is made for proofreading, reviewing, and giving feedback on content
 HOW IT WORKS
 
 1. Select some text on a page.
-2. Right-click and choose "Add note", or press Alt+Shift+N.
+2. Right-click and choose "Add note", or press the keyboard shortcut.
 3. Pick a label, write your note, and press Ctrl+Enter. Done.
 
 FEATURES
@@ -52,7 +52,7 @@ FEATURES
 • One folder per page: every page you annotate gets its own folder. Different pages of the same site stay apart. Tracking tags and anchors in the address (after "?" or "#") are ignored, so one article stays one folder.
 • Export in one click: copy a page's notes as Markdown, or download them as a .md or .txt file. You can also download all your notes at once.
 • Works almost everywhere: web pages, PDFs, and local files that you open in Chrome.
-• Keyboard shortcut: Alt+Shift+N by default. Change it at chrome://extensions/shortcuts.
+• Keyboard shortcut: Alt+Shift+N by default. Chrome skips it if another extension already uses it. Set or change it at chrome://extensions/shortcuts.
 • Edit and delete: fix a note later, or clear a whole page when you are done.
 • Light and dark mode: follows your system theme.
 
